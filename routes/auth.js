@@ -2,7 +2,7 @@
 const router = require("express").Router();
 const { UserModel, validate } = require("../models/users");
 const Joi = require("joi");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken"); // Import JWT module
 const { verifyUserWithToken } = require("../middleware/auth_Middleware"); // Import verifyToken middleware
 
