@@ -259,7 +259,7 @@ router.post("/send", verifyUserWithToken, async (req, res) => {
       // If recipient's mailbox doesn't exist, create one
       if (!recipientMailbox) {
         recipientMailbox = await new MailboxModel({
-          userId: recipientEmail,
+          userId: recipientUserData._id,
         }).save();
       }
 
