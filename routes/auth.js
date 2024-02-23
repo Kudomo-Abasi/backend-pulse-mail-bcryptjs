@@ -24,38 +24,45 @@ router.use((req, res, next) => {
 
 // recieve the user model and mark as read
 router.post("/login", async (req, res) => {
-    try {
-      const { error } = validateUser(req.body); // Use validateUser from UserModel
-      if (error)
-        return res.status(400).send({ message: error.details[0].message });
-  
-      const user = await UserModel.findOne({ email: req.body.email });
-  
-      if (!user) {
-        console.log("User not found.");
-        return res.status(401).send({ message: "Invalid Email or Password" });
-      }
-  
-      const validPassword = await bcrypt.compare(
-        req.body.password,
-        user.password
-      );
-      if (!validPassword) {
-        console.log("Invalid password.");
-        return res.status(401).send({ message: "Invalid Email or Password" });
-      }
-  
-      const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET); // Generate token
-      res
-        .status(200)
-        .send({ data: token, message: "Logged in successfully" }); // Send token as response
-    } catch (error) {
-      console.error(`Error processing request: ${error.message}`);
-      res
-        .status(500)
-        .send({ message: "Internal Server Error " + error.message });
+  try {
+    const { error } = validateUser(req.body); // Use validateUser from UserModel
+    if (error)
+      return res.status(400).send({ message: error.details[0].message });
+
+    const user = await UserModel.findOne({ email: req.body.email });
+
+    if (!user) {
+      console.log("User not found.");
+      return res.status(401).send({ message: "Invalid Email or Password" });
     }
-  });
+
+    const validPassword = await bcrypt.compare(
+      req.body.password,
+      user.password
+    );
+    if (!validPassword) {
+      console.log("Invalid password.");
+      return res.status(401).send({ message: "Invalid Email or Password" });
+    }
+
+    // Prepare the user data to be sent in the response
+    const userData = {
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName
+    };
+
+    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET); // Generate token
+    res
+      .status(200)
+      .send({ data: { token, ...userData }, message: "Logged in successfully" }); // Send token and user data as response
+  } catch (error) {
+    console.error(`Error processing request: ${error.message}`);
+    res
+      .status(500)
+      .send({ message: "Internal Server Error " + error.message });
+  }
+});
 
   router.post("/register", async (req, res) => {
     try {
